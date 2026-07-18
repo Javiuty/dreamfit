@@ -1,0 +1,566 @@
+/* Dreamfit · Ocupación en directo
+   Estilos del panel. Las fuentes Archivo / Archivo Black se cargan desde
+   Google Fonts en index.html.
+
+   Diseño responsive: el tablero llena el viewport y reflúye a cualquier
+   proporción. Los elementos atómicos (tipografía, aro, celdas, paddings)
+   escalan de forma uniforme con --s = min(ancho/1920, alto/1080) para no
+   deformarse; el layout flexible (columna 1fr, fila 1fr, SVGs fluidos)
+   absorbe el espacio sobrante. El diseño original está calibrado a
+   1920×1080, donde --s = 1px y se ve a tamaño nativo. */
+
+:root {
+  --bg: #0b0b0e;
+  --card: rgba(255, 255, 255, 0.035);
+  --card-border: rgba(255, 255, 255, 0.07);
+  --text: #f4f2ef;
+  --muted: rgba(244, 242, 239, 0.52);
+  --faint: rgba(244, 242, 239, 0.32);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Archivo', 'Helvetica Neue', sans-serif;
+  color: var(--text);
+}
+
+/* Contenedor a pantalla completa que define la escala de diseño --s. */
+.stage {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  --s: min(100vw / 1920, 100vh / 1080);
+}
+
+.canvas {
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  background-image: radial-gradient(1100px 600px at 8% -10%, rgba(105, 207, 1, 0.1), transparent 65%),
+    radial-gradient(900px 500px at 100% 110%, rgba(105, 207, 1, 0.05), transparent 60%);
+  overflow: hidden;
+}
+
+.board {
+  width: 100%;
+  height: 100%;
+  padding: calc(40 * var(--s)) calc(48 * var(--s)) calc(30 * var(--s));
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- header ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: calc(84 * var(--s));
+  flex: none;
+}
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: calc(28 * var(--s));
+}
+.logo {
+  height: calc(38 * var(--s));
+  display: block;
+}
+.club {
+  display: flex;
+  flex-direction: column;
+  gap: calc(4 * var(--s));
+  padding-left: calc(28 * var(--s));
+  border-left: 2px solid var(--accent);
+}
+.club-name {
+  font-weight: 800;
+  font-size: calc(24 * var(--s));
+  letter-spacing: 0.14em;
+}
+.club-sub {
+  font-weight: 600;
+  font-size: calc(13 * var(--s));
+  letter-spacing: 0.3em;
+  color: var(--accent);
+}
+.topbar-clock {
+  text-align: right;
+}
+.clock-time {
+  font-weight: 800;
+  font-size: calc(44 * var(--s));
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.sim-tag {
+  font-size: calc(13 * var(--s));
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  vertical-align: super;
+  margin-left: calc(10 * var(--s));
+}
+.clock-date {
+  font-size: calc(17 * var(--s));
+  color: var(--muted);
+  margin-top: calc(6 * var(--s));
+  text-transform: capitalize;
+}
+
+/* ---------- grid ---------- */
+.grid {
+  flex: 1;
+  min-height: 0;
+  margin-top: calc(26 * var(--s));
+  display: grid;
+  gap: calc(24 * var(--s));
+  /* Columnas laterales a escala fija; la central (1fr) absorbe el ancho
+     sobrante. Fila superior (1fr) absorbe el alto sobrante. */
+  grid-template-columns: calc(540 * var(--s)) minmax(0, 1fr) calc(510 * var(--s));
+  grid-template-rows: minmax(0, 1fr) calc(332 * var(--s));
+  grid-template-areas:
+    'now curve curve'
+    'now heat  facts';
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: calc(22 * var(--s));
+  padding: calc(26 * var(--s)) calc(30 * var(--s));
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.board.mounted .card {
+  opacity: 1;
+  transform: none;
+}
+.board.mounted .card:nth-child(1) {
+  transition-delay: 0.05s;
+}
+.board.mounted .card:nth-child(2) {
+  transition-delay: 0.15s;
+}
+.board.mounted .card:nth-child(3) {
+  transition-delay: 0.25s;
+}
+.board.mounted .card:nth-child(4) {
+  transition-delay: 0.35s;
+}
+.board.mounted .card:nth-child(5) {
+  transition-delay: 0.45s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+}
+
+.card-now {
+  grid-area: now;
+  display: flex;
+  flex-direction: column;
+}
+.card-curve {
+  grid-area: curve;
+  display: flex;
+  flex-direction: column;
+}
+.card-heat {
+  grid-area: heat;
+}
+.card-days {
+  display: none;
+}
+.card-facts {
+  grid-area: facts;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-title {
+  font-size: calc(14 * var(--s));
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: calc(10 * var(--s));
+  white-space: nowrap;
+}
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(20 * var(--s));
+}
+.legend {
+  display: flex;
+  gap: calc(22 * var(--s));
+  flex: none;
+}
+
+/* ---------- AHORA ---------- */
+.live-dot {
+  width: calc(10 * var(--s));
+  height: calc(10 * var(--s));
+  border-radius: 50%;
+  animation: blink 1.6s ease infinite;
+}
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+.gauge-wrap {
+  position: relative;
+  align-self: center;
+  margin-top: calc(8 * var(--s));
+}
+.gauge-wrap svg {
+  display: block;
+  width: calc(420 * var(--s));
+  height: calc(420 * var(--s));
+}
+.gauge-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(2 * var(--s));
+}
+.gauge-num {
+  font-family: 'Archivo Black', 'Archivo', sans-serif;
+  font-size: calc(110 * var(--s));
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.gauge-sub {
+  font-size: calc(19 * var(--s));
+  color: var(--muted);
+}
+.gauge-closed {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: calc(44 * var(--s));
+  letter-spacing: 0.08em;
+  color: var(--faint);
+}
+.now-status {
+  text-align: center;
+  margin-top: calc(6 * var(--s));
+}
+.status-chip {
+  display: inline-block;
+  border: 1.5px solid;
+  border-radius: 999px;
+  padding: calc(7 * var(--s)) calc(22 * var(--s));
+  font-weight: 800;
+  font-size: calc(19 * var(--s));
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.status-msg {
+  margin-top: calc(10 * var(--s));
+  font-size: calc(17 * var(--s));
+  color: var(--muted);
+}
+.best-row {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: calc(18 * var(--s));
+  background: rgba(105, 207, 1, 0.09);
+  border: 1px solid rgba(105, 207, 1, 0.28);
+  border-radius: calc(16 * var(--s));
+  padding: calc(16 * var(--s)) calc(22 * var(--s));
+}
+.best-icon {
+  font-size: calc(30 * var(--s));
+  color: #69cf01;
+  font-weight: 800;
+}
+.best-title {
+  font-size: calc(12 * var(--s));
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: #69cf01;
+}
+.best-time {
+  font-size: calc(27 * var(--s));
+  font-weight: 800;
+  margin-top: calc(3 * var(--s));
+  font-variant-numeric: tabular-nums;
+}
+.best-avg {
+  font-size: calc(16 * var(--s));
+  font-weight: 500;
+  color: var(--muted);
+  margin-left: calc(8 * var(--s));
+}
+
+/* ---------- curva ---------- */
+/* El SVG usa viewBox propio (1170×380): su tipografía interna vive en
+   coordenadas de usuario y escala con el gráfico, así que no lleva --s. */
+.curve-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: calc(10 * var(--s));
+}
+.axis-label {
+  fill: var(--faint);
+  font-size: 14px;
+  font-family: 'Archivo', sans-serif;
+  font-weight: 500;
+}
+.best-label {
+  fill: #69cf01;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  font-family: 'Archivo', sans-serif;
+}
+.now-label {
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  font-family: 'Archivo', sans-serif;
+}
+.now-pulse {
+  stroke-width: 2;
+  animation: pulse 2s ease-out infinite;
+}
+@keyframes pulse {
+  0% {
+    r: 9;
+    opacity: 0.9;
+  }
+  100% {
+    r: 26;
+    opacity: 0;
+  }
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: calc(8 * var(--s));
+  font-size: calc(14 * var(--s));
+  color: var(--muted);
+}
+.legend-line {
+  width: calc(22 * var(--s));
+  height: calc(4 * var(--s));
+  border-radius: 2px;
+  background: var(--accent);
+}
+.legend-band {
+  width: calc(22 * var(--s));
+  height: calc(12 * var(--s));
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ---------- heatmap ---------- */
+.heatmap {
+  margin-top: calc(14 * var(--s));
+}
+.heat-grid {
+  display: grid;
+  align-items: center;
+  gap: calc(3 * var(--s));
+}
+.heat-day {
+  font-size: calc(14 * var(--s));
+  font-weight: 700;
+  color: var(--muted);
+  text-align: center;
+}
+.heat-day.is-today {
+  color: var(--accent);
+}
+.heat-cell {
+  height: calc(25 * var(--s));
+  border-radius: calc(4 * var(--s));
+}
+.heat-cell.is-today-row {
+  outline: 1.5px solid rgba(255, 255, 255, 0.22);
+  outline-offset: -1.5px;
+}
+.heat-hours {
+  position: relative;
+  height: calc(18 * var(--s));
+  margin-top: calc(5 * var(--s));
+}
+.heat-hours span {
+  position: absolute;
+  top: calc(2 * var(--s));
+  font-size: calc(14 * var(--s));
+  font-weight: 600;
+  color: rgba(244, 242, 239, 0.6);
+  transform: translateX(-50%);
+  font-variant-numeric: tabular-nums;
+}
+.heat-hours span::after {
+  content: 'h';
+  font-size: calc(11 * var(--s));
+  opacity: 0.6;
+}
+.heat-legend {
+  display: flex;
+  align-items: center;
+  gap: calc(12 * var(--s));
+  margin-top: calc(12 * var(--s));
+  padding-left: calc(40 * var(--s));
+}
+.heat-legend-bar {
+  flex: 1;
+  max-width: calc(240 * var(--s));
+  height: calc(10 * var(--s));
+  border-radius: calc(5 * var(--s));
+  background: linear-gradient(90deg, #181c16, #23400f, #477f0a, #69cf01, #aee94e, #e9f7a3);
+}
+.heat-legend-cap {
+  font-size: calc(13 * var(--s));
+  color: var(--faint);
+  white-space: nowrap;
+}
+
+/* ---------- barras por día (oculto en el layout actual) ---------- */
+.daybars {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+.daybar-row {
+  display: grid;
+  grid-template-columns: 96px 1fr 48px;
+  align-items: center;
+  gap: 14px;
+}
+.daybar-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.daybar-label.is-today {
+  color: var(--text);
+  font-weight: 800;
+}
+.daybar-track {
+  height: 16px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+.daybar-fill {
+  height: 100%;
+  border-radius: 8px;
+}
+.daybar-val {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--faint);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.daybar-val.is-today {
+  color: var(--text);
+}
+.daybars-note {
+  font-size: 13px;
+  color: var(--faint);
+  margin-top: 4px;
+}
+
+/* ---------- datos curiosos ---------- */
+.facts {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin-top: calc(14 * var(--s));
+}
+.fact {
+  flex: 1;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+.fact.is-in {
+  opacity: 1;
+  transform: none;
+}
+.fact-kicker {
+  font-size: calc(14 * var(--s));
+  font-weight: 800;
+  letter-spacing: 0.24em;
+}
+.fact-value {
+  font-family: 'Archivo Black', 'Archivo', sans-serif;
+  font-size: calc(76 * var(--s));
+  line-height: 1.05;
+  margin-top: calc(12 * var(--s));
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.fact-unit {
+  font-family: 'Archivo', sans-serif;
+  font-size: calc(30 * var(--s));
+  font-weight: 600;
+  color: var(--muted);
+}
+.fact-caption {
+  font-size: calc(19 * var(--s));
+  color: var(--muted);
+  margin-top: calc(12 * var(--s));
+  line-height: 1.45;
+  max-width: calc(420 * var(--s));
+  text-wrap: pretty;
+}
+.fact-dots {
+  display: flex;
+  gap: calc(8 * var(--s));
+}
+.fact-dot {
+  width: calc(9 * var(--s));
+  height: calc(9 * var(--s));
+  border-radius: 50%;
+  transition: background 0.3s;
+}
+
+/* ---------- footer ---------- */
+.footbar {
+  flex: none;
+  margin-top: calc(22 * var(--s));
+  display: flex;
+  justify-content: space-between;
+  font-size: calc(14 * var(--s));
+  color: var(--faint);
+  letter-spacing: 0.04em;
+}

@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
 import { occupancyData as DF } from '../api/occupancyData';
 import { interpAt, statusOf, bestWindow, wobble } from '../utils/helpers';
+import { buildKpis, forecast } from '../utils/analytics';
 import { DIAS_JS, DIAS_LABEL, MESES } from '../utils/constants';
 import { DEFAULT_SETTINGS } from '../config';
 import TopBar from './TopBar';
+import KpiStrip from './KpiStrip';
 import NowGauge from './NowGauge';
+import Forecast from './Forecast';
 import DayCurve from './DayCurve';
 import WeekHeatmap from './WeekHeatmap';
+import DayParts from './DayParts';
 import DayBars from './DayBars';
 import FactRotator from './FactRotator';
 
@@ -41,6 +45,11 @@ export default function OccupancyBoard({ settings = DEFAULT_SETTINGS }) {
   const st = statusOf(nowPct);
   const best = bestWindow(slots, horaF);
 
+  // analítica derivada
+  const kpis = buildKpis(slots, nowVal);
+  const fcItems = forecast(slots, horaF, DF.capacity);
+  const hasForecast = fcItems.some((i) => i.val != null);
+
   const fechaStr = `${DIAS_LABEL[dia]}, ${now.getDate()} de ${MESES[now.getMonth()]}`;
   const horaStr = simulado
     ? `${String(Math.floor(horaF)).padStart(2, '0')}:${horaF % 1 ? '30' : '00'}`
@@ -50,28 +59,40 @@ export default function OccupancyBoard({ settings = DEFAULT_SETTINGS }) {
     <div className={'board' + (mounted ? ' mounted' : '')} style={{ '--accent': accent }} data-screen-label="Dashboard ocupación">
       <TopBar horaStr={horaStr} fechaStr={fechaStr} simulado={simulado} />
 
+      <KpiStrip kpis={kpis} accent={accent} closed={closed} />
+
       <main className="grid">
         <section className="card card-now">
-          <div className="card-title">
-            <span className="live-dot" style={{ background: closed ? '#666' : st.color }} />
-            AHORA MISMO
-          </div>
-          <NowGauge value={nowVal} pct={nowPct} accent={accent} speed={speed} closed={closed} />
-          <div className="now-status">
-            <div className="status-chip" style={{ color: closed ? '#999' : st.color, borderColor: closed ? '#444' : st.color }}>
-              {closed ? 'Fuera de horario' : st.label}
+          <div className="now-live">
+            <div className="card-title">
+              <span className="live-dot" style={{ background: closed ? '#666' : st.color }} />
+              AHORA MISMO
             </div>
-            <div className="status-msg">{closed ? 'Vuelve mañana con energía.' : st.msg}</div>
-          </div>
-          {best ? (
-            <div className="best-row">
-              <div className="best-icon">→</div>
-              <div>
-                <div className="best-title">MEJOR FRANJA PARA VENIR</div>
-                <div className="best-time">
-                  {best.label} <span className="best-avg">≈{best.avg} personas</span>
+            <div className="now-live-body">
+              <NowGauge value={nowVal} pct={nowPct} accent={accent} speed={speed} closed={closed} />
+              <div className="now-status">
+                <div className="status-chip" style={{ color: closed ? '#999' : st.color, borderColor: closed ? '#444' : st.color }}>
+                  {closed ? 'Fuera de horario' : st.label}
                 </div>
+                <div className="status-msg">{closed ? 'Vuelve mañana con energía.' : st.msg}</div>
               </div>
+            </div>
+          </div>
+
+          {best || hasForecast ? (
+            <div className="now-next">
+              {best ? (
+                <div className="best-row">
+                  <div className="best-icon">→</div>
+                  <div>
+                    <div className="best-title">MEJOR FRANJA PARA VENIR</div>
+                    <div className="best-time">
+                      {best.label} <span className="best-avg">≈{best.avg} personas</span>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+              <Forecast items={fcItems} />
             </div>
           ) : null}
         </section>
@@ -106,15 +127,22 @@ export default function OccupancyBoard({ settings = DEFAULT_SETTINGS }) {
           <WeekHeatmap todayDia={dia} speed={speed} />
         </section>
 
-        <section className="card card-days">
-          <div className="card-title">MEDIA POR DÍA</div>
-          <DayBars accent={accent} todayDia={dia} speed={speed} />
-        </section>
+        <div className="side">
+          <section className="card card-parts">
+            <div className="card-title">REPARTO DEL DÍA</div>
+            <DayParts slots={slots} />
+          </section>
 
-        <section className="card card-facts">
-          <div className="card-title">¿SABÍAS QUE…?</div>
-          <FactRotator accent={accent} speed={speed} />
-        </section>
+          <section className="card card-days">
+            <div className="card-title">MEDIA POR DÍA</div>
+            <DayBars accent={accent} todayDia={dia} speed={speed} />
+          </section>
+
+          <section className="card card-facts">
+            <div className="card-title">¿SABÍAS QUE…?</div>
+            <FactRotator accent={accent} speed={speed} />
+          </section>
+        </div>
       </main>
 
       <footer className="footbar">

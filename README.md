@@ -52,18 +52,28 @@ src/
 │  ├─ Stage.jsx              # contenedor a pantalla completa
 │  ├─ OccupancyBoard.jsx     # tablero: estado, reloj y composición del grid
 │  ├─ TopBar.jsx             # cabecera (logo + club + reloj)
+│  ├─ KpiStrip.jsx           # tira de KPIs (pico, media, valle, ahora vs media)
 │  ├─ NowGauge.jsx           # aro "ahora mismo" (personas y % de aforo)
+│  ├─ Forecast.jsx           # previsión de las próximas horas (barras por estado)
 │  ├─ DayCurve.jsx           # curva del día (media, banda p25–p75, marcador AHORA)
 │  ├─ WeekHeatmap.jsx        # mapa de calor semanal
-│  ├─ DayBars.jsx            # barras de media por día (oculto en el layout actual)
+│  ├─ DayParts.jsx           # donut "reparto del día" (mañana/mediodía/tarde/noche)
+│  ├─ DayBars.jsx            # barras de media por día de la semana
 │  └─ FactRotator.jsx        # rotador de "datos curiosos"
 ├─ utils/
 │  ├─ constants.js           # etiquetas de días y meses
 │  ├─ helpers.js             # cálculo y color (curvas, heatmap, interpolación…)
+│  ├─ analytics.js           # KPIs, reparto del día y previsión (derivados de la curva)
 │  └─ useTween.js            # hook de animación de valores
 └─ styles/
    └─ dashboard.css          # estilos del panel
 ```
+
+Todos los paneles se derivan de los mismos datos históricos (medias y
+percentiles por franja de media hora); no hace falta ninguna fuente adicional.
+Los colores siguen un solo sistema: verde de marca `#69CF01`, rampa verde
+secuencial para magnitud (heatmap y donut) y colores de estado reservados
+(semáforo) para el nivel de afluencia, siempre acompañados de etiqueta.
 
 ## Datos
 

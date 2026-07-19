@@ -56,7 +56,7 @@ body {
 .board {
   width: 100%;
   height: 100%;
-  padding: calc(40 * var(--s)) calc(48 * var(--s)) calc(30 * var(--s));
+  padding: calc(24 * var(--s)) calc(44 * var(--s)) calc(24 * var(--s));
   display: flex;
   flex-direction: column;
 }
@@ -66,34 +66,34 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: calc(84 * var(--s));
+  height: calc(54 * var(--s));
   flex: none;
 }
 .topbar-brand {
   display: flex;
   align-items: center;
-  gap: calc(28 * var(--s));
+  gap: calc(20 * var(--s));
 }
 .logo {
-  height: calc(38 * var(--s));
+  height: calc(28 * var(--s));
   display: block;
 }
 .club {
   display: flex;
   flex-direction: column;
-  gap: calc(4 * var(--s));
-  padding-left: calc(28 * var(--s));
+  gap: calc(2 * var(--s));
+  padding-left: calc(20 * var(--s));
   border-left: 2px solid var(--accent);
 }
 .club-name {
   font-weight: 800;
-  font-size: calc(24 * var(--s));
+  font-size: calc(18 * var(--s));
   letter-spacing: 0.14em;
 }
 .club-sub {
   font-weight: 600;
-  font-size: calc(13 * var(--s));
-  letter-spacing: 0.3em;
+  font-size: calc(11 * var(--s));
+  letter-spacing: 0.28em;
   color: var(--accent);
 }
 .topbar-clock {
@@ -101,40 +101,120 @@ body {
 }
 .clock-time {
   font-weight: 800;
-  font-size: calc(44 * var(--s));
+  font-size: calc(32 * var(--s));
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 .sim-tag {
-  font-size: calc(13 * var(--s));
+  font-size: calc(11 * var(--s));
   font-weight: 700;
   letter-spacing: 0.2em;
   color: var(--accent);
   vertical-align: super;
-  margin-left: calc(10 * var(--s));
+  margin-left: calc(8 * var(--s));
 }
 .clock-date {
-  font-size: calc(17 * var(--s));
+  font-size: calc(14 * var(--s));
   color: var(--muted);
-  margin-top: calc(6 * var(--s));
+  margin-top: calc(3 * var(--s));
   text-transform: capitalize;
+}
+
+/* ---------- tira de KPIs ---------- */
+.kpi-strip {
+  flex: none;
+  margin-top: calc(14 * var(--s));
+  display: flex;
+  gap: calc(20 * var(--s));
+}
+.kpi-tile {
+  flex: 1;
+  min-width: 0;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: calc(18 * var(--s));
+  padding: calc(16 * var(--s)) calc(24 * var(--s));
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.board.mounted .kpi-tile {
+  opacity: 1;
+  transform: none;
+}
+.board.mounted .kpi-tile:nth-child(1) {
+  transition-delay: 0.02s;
+}
+.board.mounted .kpi-tile:nth-child(2) {
+  transition-delay: 0.08s;
+}
+.board.mounted .kpi-tile:nth-child(3) {
+  transition-delay: 0.14s;
+}
+.board.mounted .kpi-tile:nth-child(4) {
+  transition-delay: 0.2s;
+}
+.kpi-label {
+  font-size: calc(13 * var(--s));
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.kpi-value {
+  font-family: 'Archivo Black', 'Archivo', sans-serif;
+  font-size: calc(46 * var(--s));
+  line-height: 1.05;
+  margin-top: calc(6 * var(--s));
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: baseline;
+  gap: calc(6 * var(--s));
+}
+.kpi-arrow {
+  font-family: 'Archivo', sans-serif;
+  font-size: calc(30 * var(--s));
+  font-weight: 800;
+}
+.kpi-sub {
+  font-size: calc(14 * var(--s));
+  color: var(--faint);
+  margin-top: calc(4 * var(--s));
+  white-space: nowrap;
 }
 
 /* ---------- grid ---------- */
 .grid {
   flex: 1;
   min-height: 0;
-  margin-top: calc(26 * var(--s));
+  margin-top: calc(18 * var(--s));
   display: grid;
-  gap: calc(24 * var(--s));
+  gap: calc(20 * var(--s));
   /* Columnas laterales a escala fija; la central (1fr) absorbe el ancho
-     sobrante. Fila superior (1fr) absorbe el alto sobrante. */
-  grid-template-columns: calc(540 * var(--s)) minmax(0, 1fr) calc(510 * var(--s));
-  grid-template-rows: minmax(0, 1fr) calc(332 * var(--s));
+     sobrante. Fila superior (1fr) absorbe el alto sobrante. La columna
+     derecha (side) apila tres tarjetas y ocupa las dos filas. */
+  grid-template-columns: calc(500 * var(--s)) minmax(0, 1fr) calc(430 * var(--s));
+  grid-template-rows: minmax(0, 1fr) calc(300 * var(--s));
   grid-template-areas:
-    'now curve curve'
-    'now heat  facts';
+    'now curve side'
+    'now heat  side';
+}
+
+/* Columna derecha: tres tarjetas apiladas que llenan el alto. */
+.side {
+  grid-area: side;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(20 * var(--s));
+}
+.side > .card {
+  flex: 1;
+  min-height: 0;
+  padding: calc(18 * var(--s)) calc(22 * var(--s));
 }
 .card {
   background: var(--card);
@@ -178,6 +258,31 @@ body {
   display: flex;
   flex-direction: column;
 }
+/* bloque "ahora mismo": aro + estado, centrado en el espacio superior */
+.now-live {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.now-live-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(16 * var(--s));
+}
+/* bloque de planificación, separado por una línea sutil */
+.now-next {
+  flex: none;
+  margin-top: calc(20 * var(--s));
+  padding-top: calc(20 * var(--s));
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: calc(16 * var(--s));
+}
 .card-curve {
   grid-area: curve;
   display: flex;
@@ -186,11 +291,9 @@ body {
 .card-heat {
   grid-area: heat;
 }
-.card-days {
-  display: none;
-}
+.card-parts,
+.card-days,
 .card-facts {
-  grid-area: facts;
   display: flex;
   flex-direction: column;
 }
@@ -236,12 +339,11 @@ body {
 .gauge-wrap {
   position: relative;
   align-self: center;
-  margin-top: calc(8 * var(--s));
 }
 .gauge-wrap svg {
   display: block;
-  width: calc(420 * var(--s));
-  height: calc(420 * var(--s));
+  width: calc(300 * var(--s));
+  height: calc(300 * var(--s));
 }
 .gauge-center {
   position: absolute;
@@ -254,13 +356,13 @@ body {
 }
 .gauge-num {
   font-family: 'Archivo Black', 'Archivo', sans-serif;
-  font-size: calc(110 * var(--s));
+  font-size: calc(80 * var(--s));
   line-height: 1;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
 .gauge-sub {
-  font-size: calc(19 * var(--s));
+  font-size: calc(18 * var(--s));
   color: var(--muted);
 }
 .gauge-closed {
@@ -271,7 +373,6 @@ body {
 }
 .now-status {
   text-align: center;
-  margin-top: calc(6 * var(--s));
 }
 .status-chip {
   display: inline-block;
@@ -289,7 +390,6 @@ body {
   color: var(--muted);
 }
 .best-row {
-  margin-top: auto;
   display: flex;
   align-items: center;
   gap: calc(18 * var(--s));
@@ -322,14 +422,212 @@ body {
   margin-left: calc(8 * var(--s));
 }
 
+/* ---------- previsión próximas horas ---------- */
+.forecast {
+  width: 100%;
+}
+.forecast-title {
+  font-size: calc(12 * var(--s));
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--muted);
+}
+.forecast-bars {
+  display: flex;
+  gap: calc(12 * var(--s));
+  align-items: flex-end;
+  margin-top: calc(10 * var(--s));
+}
+.fc-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(6 * var(--s));
+  border-radius: calc(12 * var(--s));
+  padding: calc(8 * var(--s)) calc(4 * var(--s));
+}
+.fc-col.is-best {
+  background: rgba(105, 207, 1, 0.09);
+  outline: 1px solid rgba(105, 207, 1, 0.28);
+  outline-offset: calc(-1 * var(--s));
+}
+.fc-val {
+  font-size: calc(16 * var(--s));
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.fc-track {
+  width: 100%;
+  height: calc(58 * var(--s));
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.fc-bar {
+  width: calc(26 * var(--s));
+  border-radius: calc(6 * var(--s));
+  transition: height 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.fc-time {
+  font-size: calc(15 * var(--s));
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.fc-status {
+  font-size: calc(12 * var(--s));
+  font-weight: 700;
+}
+
+/* ---------- reparto del día (donut) ---------- */
+.parts {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  gap: calc(20 * var(--s));
+  margin-top: calc(10 * var(--s));
+}
+.parts-donut {
+  position: relative;
+  flex: none;
+  width: calc(168 * var(--s));
+  height: calc(168 * var(--s));
+}
+.parts-donut svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.parts-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(2 * var(--s));
+  text-align: center;
+}
+.parts-center-kicker {
+  font-size: calc(10 * var(--s));
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--faint);
+}
+.parts-center-val {
+  font-size: calc(22 * var(--s));
+  font-weight: 800;
+}
+.parts-center-pct {
+  font-size: calc(16 * var(--s));
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.parts-legend {
+  flex: 1;
+  min-width: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: calc(10 * var(--s));
+}
+.parts-legend li {
+  display: grid;
+  grid-template-columns: calc(10 * var(--s)) 1fr auto;
+  align-items: baseline;
+  gap: calc(9 * var(--s));
+}
+.parts-dot {
+  width: calc(10 * var(--s));
+  height: calc(10 * var(--s));
+  border-radius: 3px;
+  align-self: center;
+}
+.parts-name {
+  font-size: calc(16 * var(--s));
+  font-weight: 700;
+}
+.parts-desc {
+  grid-column: 2;
+  font-size: calc(12 * var(--s));
+  color: var(--faint);
+  margin-top: calc(-4 * var(--s));
+}
+.parts-pct {
+  grid-row: 1 / span 2;
+  grid-column: 3;
+  align-self: center;
+  font-size: calc(20 * var(--s));
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ---------- curva ---------- */
 /* El SVG usa viewBox propio (1170×380): su tipografía interna vive en
    coordenadas de usuario y escala con el gráfico, así que no lleva --s. */
+.curve-wrap {
+  position: relative;
+  margin-top: calc(10 * var(--s));
+  outline: none;
+}
+.curve-wrap:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: calc(4 * var(--s));
+  border-radius: calc(8 * var(--s));
+}
 .curve-svg {
   display: block;
   width: 100%;
   height: auto;
-  margin-top: calc(10 * var(--s));
+}
+
+/* ---------- tooltip compartido (curva + heatmap) ---------- */
+.chart-tip {
+  position: absolute;
+  z-index: 6;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 12 * var(--s)));
+  background: rgba(16, 18, 14, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: calc(10 * var(--s));
+  padding: calc(9 * var(--s)) calc(13 * var(--s));
+  box-shadow: 0 calc(8 * var(--s)) calc(26 * var(--s)) rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.chart-tip-time {
+  font-size: calc(12 * var(--s));
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.chart-tip-row {
+  display: flex;
+  align-items: baseline;
+  gap: calc(8 * var(--s));
+  margin-top: calc(6 * var(--s));
+}
+.chart-tip-key {
+  flex: none;
+  align-self: center;
+  width: calc(14 * var(--s));
+  height: calc(3 * var(--s));
+  border-radius: 2px;
+}
+.chart-tip-val {
+  font-size: calc(18 * var(--s));
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.chart-tip-lbl {
+  font-size: calc(12 * var(--s));
+  color: var(--muted);
 }
 .axis-label {
   fill: var(--faint);
@@ -387,6 +685,7 @@ body {
 
 /* ---------- heatmap ---------- */
 .heatmap {
+  position: relative;
   margin-top: calc(14 * var(--s));
 }
 .heat-grid {
@@ -404,12 +703,19 @@ body {
   color: var(--accent);
 }
 .heat-cell {
-  height: calc(25 * var(--s));
+  height: calc(20 * var(--s));
   border-radius: calc(4 * var(--s));
 }
 .heat-cell.is-today-row {
   outline: 1.5px solid rgba(255, 255, 255, 0.22);
   outline-offset: -1.5px;
+}
+.heat-cell:hover {
+  position: relative;
+  z-index: 2;
+  outline: 2px solid #fff;
+  outline-offset: -1px;
+  cursor: crosshair;
 }
 .heat-hours {
   position: relative;
@@ -433,8 +739,8 @@ body {
 .heat-legend {
   display: flex;
   align-items: center;
-  gap: calc(12 * var(--s));
-  margin-top: calc(12 * var(--s));
+  gap: calc(16 * var(--s));
+  margin-top: calc(18 * var(--s));
   padding-left: calc(40 * var(--s));
 }
 .heat-legend-bar {
@@ -450,40 +756,43 @@ body {
   white-space: nowrap;
 }
 
-/* ---------- barras por día (oculto en el layout actual) ---------- */
+/* ---------- barras por día ---------- */
 .daybars {
-  margin-top: 18px;
+  flex: 1;
+  min-height: 0;
+  margin-top: calc(12 * var(--s));
   display: flex;
   flex-direction: column;
-  gap: 13px;
+  justify-content: space-between;
 }
 .daybar-row {
   display: grid;
-  grid-template-columns: 96px 1fr 48px;
+  grid-template-columns: calc(88 * var(--s)) 1fr calc(38 * var(--s));
   align-items: center;
-  gap: 14px;
+  gap: calc(12 * var(--s));
 }
 .daybar-label {
-  font-size: 16px;
+  font-size: calc(15 * var(--s));
   font-weight: 600;
   color: var(--muted);
+  white-space: nowrap;
 }
 .daybar-label.is-today {
   color: var(--text);
   font-weight: 800;
 }
 .daybar-track {
-  height: 16px;
-  border-radius: 8px;
+  height: calc(12 * var(--s));
+  border-radius: 999px;
   background: rgba(255, 255, 255, 0.05);
   overflow: hidden;
 }
 .daybar-fill {
   height: 100%;
-  border-radius: 8px;
+  border-radius: 999px;
 }
 .daybar-val {
-  font-size: 16px;
+  font-size: calc(15 * var(--s));
   font-weight: 700;
   color: var(--faint);
   text-align: right;
@@ -493,9 +802,9 @@ body {
   color: var(--text);
 }
 .daybars-note {
-  font-size: 13px;
+  font-size: calc(12 * var(--s));
   color: var(--faint);
-  margin-top: 4px;
+  margin-top: calc(6 * var(--s));
 }
 
 /* ---------- datos curiosos ---------- */
@@ -504,7 +813,7 @@ body {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  margin-top: calc(14 * var(--s));
+  margin-top: calc(10 * var(--s));
 }
 .fact {
   flex: 1;
@@ -517,30 +826,29 @@ body {
   transform: none;
 }
 .fact-kicker {
-  font-size: calc(14 * var(--s));
+  font-size: calc(13 * var(--s));
   font-weight: 800;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.2em;
 }
 .fact-value {
   font-family: 'Archivo Black', 'Archivo', sans-serif;
-  font-size: calc(76 * var(--s));
+  font-size: calc(48 * var(--s));
   line-height: 1.05;
-  margin-top: calc(12 * var(--s));
+  margin-top: calc(8 * var(--s));
   letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
 }
 .fact-unit {
   font-family: 'Archivo', sans-serif;
-  font-size: calc(30 * var(--s));
+  font-size: calc(22 * var(--s));
   font-weight: 600;
   color: var(--muted);
 }
 .fact-caption {
-  font-size: calc(19 * var(--s));
+  font-size: calc(15 * var(--s));
   color: var(--muted);
-  margin-top: calc(12 * var(--s));
-  line-height: 1.45;
-  max-width: calc(420 * var(--s));
+  margin-top: calc(8 * var(--s));
+  line-height: 1.4;
   text-wrap: pretty;
 }
 .fact-dots {
